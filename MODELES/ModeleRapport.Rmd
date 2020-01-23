@@ -1,0 +1,186 @@
+---
+title: "Analyse en composantes principales des données décathlon"
+author: "Nathalie AKAKPO"
+date: "Jeudi 7 décembre 2017"
+output:
+  bookdown::pdf_document2:
+    fig_caption: yes
+    number_sections: yes
+    toc: yes
+institute: UPMC
+subtitle: Quelques sorties R
+header-includes:
+- \usepackage[francais]{babel}
+- \usepackage{float}
+---
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(fig.align = 'center',fig.pos = 'H')
+#position par defaut des figures dans le pdf : centrees et a l'endroit ou on les construit
+```
+
+\bigskip
+\textbf{ATTENTION : POUR ME COMPILER, VOUS DEVEZ INSTALLER LE PACKAGE bookdown DANS R.}
+
+
+#Présentation du document 
+
+Ce document a pour objectif de présenter les données décathlon et les principales sorties d'une analyse en composantes principales.
+
+\textcolor{red}{Le code source \texttt{R} du paragraphe suivant inclut :}
+
+1. du code évalué dans \texttt{R}, mais qui n'apparaît pas (ni le code, ni les sorties) dans le pdf \textcolor{green}{(include=FALSE)};
+
+2. du code évalué dans \texttt{R}, pour lequel on voit juste les sorties dans le pdf \textcolor{blue}{(echo=FALSE)};
+
+3. des valeurs numériques calculées sous \texttt{R} et intégrées dans le texte (voir lignes 43-44 du code source).
+
+
+
+##Présentation des données \label{sec:donnees}
+
+```{r chargement,include=FALSE}
+rm(list=ls())
+library(FactoMineR)
+data("decathlon")
+```
+
+
+```{r analyse preliminaire,include=FALSE}
+names(decathlon)
+str(decathlon)
+summary(decathlon)
+```
+
+Le jeu de données \texttt{decathlon} contient `r nrow(decathlon)` individus (décathloniens) sur lesquels on mesure `r ncol(decathlon)` variables. Les 10 premières correspondent aux résultats de chacune des 10 épreuves du décathlon :
+
+* temps au 100m ("100m");
+
+* distance au saut en longueur ("Long.jump") ;
+
+* distance au lancer de poids ("Shot.put") ;
+
+* hauteur au saut en hauteur ("High.jump") ;
+
+* temps au 400m ("400m") ;
+
+* temps au 110m haies ("110m.hurdle") ;
+
+* distance au lancer de disque ("Discus") ;
+
+* hauteur au saut à la perche ("Pole.vault") ;
+
+* distance au lancer de javelot ("Javeline") ;
+
+* temps au 1500m ("1500m").
+
+Les 3 autres variables sont :
+
+* le classement ("Rank") ;
+
+* le nombre total de points obtenus au décathlon ("Points") ;
+
+* la compétition ("Competition") : Jeux Olympiques ou Décastar.
+
+Le nom d'un même athlète peut apparaître 2 fois s'il a participé au Décastar et aux Jeux Olympiques.
+
+```{r donnees reduites,include=FALSE}
+#scale centre et reduit la matrice des variables quantitatives
+head(scale(decathlon[,-13]),10)
+tail(scale(decathlon[,-13]),10)
+```
+
+
+On constate que les variables ne sont pas mesurées dans la même échelle :
+```{r echelle, echo=FALSE}
+summary(decathlon[,c("High.jump","1500m")])
+```
+
+
+##Réalisation de l'ACP
+
+\textcolor{red}{Le code source \texttt{R} du paragraphe suivant inclut :}
+
+1. des références à d'autres paragraphes du document.
+
+
+Pour réaliser l'analyse en composantes principales de ce jeux de données, les variables Classement et Points ne seront pas prises en compte (déclarées quantitatives supplémentaires), la variable Competition non plus (déclarée qualitative supplémentaire).
+
+```{r ACP}
+res.pca<-PCA(decathlon,quanti.sup =11:12,quali.sup=13,graph=F)
+```
+
+L'option graph=TRUE (par défaut) construit automatiquement les graphes des individus et des variables, mais il faut en général les refaire en modifiant les options pour qu'ils soient plus lisibles (voir les paragraphes \ref{sec:plan12} et \ref{sec:plan34}).
+
+
+#Choix de la dimension
+\textcolor{red}{Le code source \texttt{R} de ce paragraphe suivant inclut :}
+
+
+1. du code évalué dans \texttt{R}, pour lequel on voit juste les sorties dans le pdf \textcolor{blue}{(echo=FALSE)};
+
+2. un tableau de sorties \texttt{R} amélioré avec un titre, auquel on peut faire référence dans le texte;
+
+3. une figure \texttt{R} avec un titre, à laquelle on peut faire référence dans le texte.
+
+Pour choisir le nombre de composantes principales, on peut s'aider de la figure \ref{fig:choixdim} et du tableau \ref{tab:inertie}. 
+
+```{r choixdim,fig.cap="Ma premiere figure",out.width = '110%',fig.align = "center",fig.pos="H",echo=F}
+barplot(res.pca$eig[,2],main="")
+```
+
+```{r inertie,echo=F}
+knitr::kable(res.pca$eig,align='c',caption="Informations sur les valeurs propres de $S$")
+```
+
+
+
+
+
+#Projections et contributions des individus
+```{r contributions individus}
+names(res.pca$ind)
+head(res.pca$ind$coord)
+head(res.pca$ind$cos2)
+res.pca$ind$contrib
+head(res.pca$ind$dist)
+```
+
+
+#Projections et contributions des variables
+```{r contributions variables}
+names(res.pca$var)
+res.pca$var$coord
+res.pca$var$cor
+res.pca$var$cos2
+res.pca$var$contrib
+```
+
+
+
+#Ajout d'une variable quantitative
+```{r quanti sup}
+names(res.pca$quanti.sup)
+res.pca$quanti.sup$coord
+res.pca$quanti.sup$cor
+res.pca$quanti.sup$cos2
+```
+
+
+#Représentation des individus et des variables dans le premier plan factoriel \label{sec:plan12}
+
+```{r projections individus premier plan}
+plot(res.pca,choix="ind",habillage=13,cex=0.7)
+```
+
+```{r cercle des correlations premier plan}
+plot(res.pca,choix="var")
+```
+
+
+
+#Représentation des individus et des variables dans le plan factoriel 3-4  \label{sec:plan34}
+```{r axes 3 et 4}
+plot(res.pca,choix="ind",habillage=13,axes=3:4,cex=0.7)
+plot(res.pca,choix="var",axes=3:4)
+```
+

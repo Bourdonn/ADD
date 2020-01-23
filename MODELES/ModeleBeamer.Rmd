@@ -1,0 +1,116 @@
+---
+title: "4M007 PROJET"
+subtitle: Comportement Bancaire de 500 clients
+author: "Makhatch Abdulvagabov"
+institute: UPMC
+date: "17/12/2017"
+theme: "Singapore" # optionnel; on peut changer le theme : "AnnArbor", "Warsaw", "Madrid", ....
+fontsize: 10pt #taille des caracteres
+output:
+  beamer_presentation:
+    toc: true #optionnel; pour voir apparaitre la table des matieres (Table Of Contents)
+---
+
+# Titre de partie  
+
+##Un slide avec en-tête
+
+Ceci est un fichier RMarkdown pour une présentation au format Beamer (création de slides en pdf). Il se compile sous RStudio avec la commande Knit to PDF (Beamer).
+
+\bigskip
+L'objectif de cette présentation est triple :
+
+- donner un modèle de présentation Beamer créée avec RMarkdown;
+
+- donner des outils pour traiter les données manquantes;
+
+- utiliser des blocs de code à options (echo=FALSE,include=FALSE).
+
+----
+
+Un slide sans en-tête
+
+# Traitement des données manquantes
+
+## Création d'un faux jeu de données
+
+*Là un bout de code est évalué mais vous ne voyez ni le code ni la sortie.*
+```{r creation fake data, include=FALSE}
+salaire<-c(2500,1570,3027,NA)
+age<-c(40,25,30,50)
+ville<-c("Lille",NA,"Lyon",NA)
+fakedata<-data.frame(salaire,age,ville)
+colnames(fakedata)<-c("Salaire","Age","Ville")
+rownames(fakedata)<-c("A","B","C","D")
+str(fakedata)
+```
+
+Voici le faux jeu de données créé et son résumé numérique *(là vous voyez la sortie, mais pas le code).*
+
+\tiny 
+*(là on n'a plus beaucoup de place donc on va écrire tout petit)*
+```{r visualisation, echo=FALSE}
+fakedata
+summary(fakedata)
+```
+
+Le tableau contient `r nrow(fakedata)` individus et `r ncol(fakedata)` variables. L'âge moyen des individus est de `mean(fakedata$Age)` ans.*(là je viens d'intégrer du code \texttt{R} au texte).
+
+Quand on a beaucoup de données, \texttt{summary} permet de voir facilement s'il y a des données manquantes (codées en général \texttt{NA}).
+
+## Localisation des données manquantes
+
+Lorsque le tableau de données n'est pas trop grand, on peut visualiser où sont les données manquantes.
+```{r localisation NA,echo=FALSE}
+localiseNA<-is.na(fakedata);localiseNA
+```
+
+Sinon, on peut au moins faire le bilan du nombre de valeurs manquantes par individu
+```{r NA individus}
+NAind<-apply(localiseNA,1,sum);NAind
+```
+
+----
+
+ou par variables
+```{r NA variables}
+NAvar<-apply(localiseNA,2,sum);NAvar
+```
+
+##Suppression des individus avec des données manquantes 
+
+Ici les individus comportant des données manquantes se trouvent dans les lignes
+```{r echo=FALSE}
+which(NAind>=1)
+```
+la liste des individus comportant des données manquantes est
+```{r echo=FALSE}
+names(which(NAind>=1))
+```
+et la liste des variables comportant des données manquantes 
+```{r echo=FALSE}
+names(which(NAvar>=1))
+```
+
+---
+
+Lorsque peu d'individus ont des données manquantes (disons moins de 5\%), on peut les supprimer du fichiers.
+```{r}
+newfakedata<-na.omit(fakedata);newfakedata
+```
+
+
+#Compléments
+
+
+##Insérer une figure avec un titre
+```{r figure2,fig.width=4,fig.height=3,fig.align ='center', fig.cap = "Histogramme des données",echo=FALSE}
+data<-rnorm(100,0,1)
+hist(data,freq=F,xlab="Données",ylab="Densité",main="")
+```
+
+----
+```{r figure1,out.width='80%',fig.align ='center', fig.cap = "Histogramme des données",echo=FALSE}
+data<-rnorm(100,0,1)
+hist(data,freq=F,xlab="Données",ylab="Densité",main="")
+```
