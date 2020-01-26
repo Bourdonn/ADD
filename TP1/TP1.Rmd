@@ -1,0 +1,50 @@
+---
+title: "TP1"
+author: "Makhatch"
+date: "19/11/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r, include=  F}
+rm(list=ls())
+library(FactoMineR)
+basket <- read.table(file = "NBAdata.txt",header = T,sep = ",")
+summary(basket)
+typeof(basket$Fields.goal.attemptedpwd)
+```
+
+
+
+
+```{r}
+data <- crabs
+pairs(data[3:8])
+library(ggplot2)
+
+```
+
+
+
+##1. Presnetations des donées
+
+La base de données est constituée des 29 variables pour 69 individus.
+
+
+
+
+
+
+
+
+
+```{r, echo = F}
+coty = read.csv("Cotyledon.csv", sep = ";")
+head(coty)
+summary(coty)
+```
+
